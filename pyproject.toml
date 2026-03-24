@@ -6,9 +6,11 @@ authors = [
 # PEP 621 project metadata
 # See https://www.python.org/dev/peps/pep-0621/
 dependencies = [
-  "django-environ"
+  "dlt[filesystem]>=1.24.0",
+  "pyarrow>=23.0.1",
+  "typer>=0.24.1",
 ]
-description = ""
+description = "Fetch naturtype faktaark from Miljødirektoratet ArcGIS REST API and write to parquet."
 license = "GPL-3.0+"
 name = "faktaark"
 readme = "README.md"
