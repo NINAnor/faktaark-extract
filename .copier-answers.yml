@@ -1,0 +1,15 @@
+# Changes here will be overwritten by Copier
+_commit: v0.2.6
+_src_path: gh:ninanor/template-python
+author_name: ninanor
+debug: false
+default_branch_name: main
+docker: false
+email: ninanor@nina.no
+notebook: false
+project_name: faktaark
+project_slug: faktaark
+repo_name: faktaark
+repo_org: ninanor
+template_type: python
+type_annotations: false

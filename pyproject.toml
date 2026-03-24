@@ -1,0 +1,35 @@
+
+[project]
+authors = [
+  {name = "ninanor", email = "ninanor@nina.no"}
+]
+# PEP 621 project metadata
+# See https://www.python.org/dev/peps/pep-0621/
+dependencies = [
+  "django-environ"
+]
+description = ""
+license = "GPL-3.0+"
+name = "faktaark"
+readme = "README.md"
+requires-python = ">=3.10"
+version = "0.1.0"
+
+
+[project.scripts]
+faktaark = "main:start"
+
+[dependency-groups]
+dev = [
+  "deptry",
+]
+
+[tool.deptry]
+known_first_party = ["src"]
+
+[tool.ruff]
+fix = true
+
+[tool.ruff.lint]
+ignore = ["COM812"]
+select = ["E", "W", "I", "F", "UP", "S", "B", "A", "COM", "LOG", "PTH", "Q"]
