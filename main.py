@@ -9,6 +9,10 @@ import tempfile
 from enum import Enum
 from typing import Annotated, Generator
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 import dlt
 import pyarrow
 import pyarrow.csv
