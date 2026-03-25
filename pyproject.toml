@@ -7,6 +7,7 @@ authors = [
 # See https://www.python.org/dev/peps/pep-0621/
 dependencies = [
   "dlt[filesystem]>=1.24.0",
+  "pydantic-ai>=0.4.0",
   "pyarrow>=23.0.1",
   "typer>=0.24.1",
 ]
