@@ -21,6 +21,7 @@ version = "0.1.0"
 
 [project.scripts]
 faktaark = "main:start"
+faktaark-extract = "extract:start"
 
 [dependency-groups]
 dev = [
