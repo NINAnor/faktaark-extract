@@ -73,7 +73,8 @@ def build_pipeline_source(ids: list[str], batch_size: int) -> object:
                 "name": "naturtyper",
                 "endpoint": {
                     "path": "query",
-                    "params": {
+                    "method": "POST",
+                    "data": {
                         "where": "{resources.naturtype_batches.where_clause}",
                         "outFields": "*",
                         "returnGeometry": "false",
