@@ -4,6 +4,7 @@
 
 import logging
 import pathlib
+import tempfile
 from typing import Annotated, Generator
 
 import dlt
@@ -152,26 +153,47 @@ def fetch(
         typer.echo("No IDs to fetch. Exiting.")
         raise typer.Exit(0)
 
-    # ── 2. Build dlt pipeline ────────────────────────────────────────────────
-    bucket_url = output.resolve().as_posix()
-    typer.echo(
-        f"Fetching in batches of {batch_size} → writing parquet to {bucket_url} …"
-    )
+    # ── 2. Run dlt pipeline into a temp dir, then consolidate ────────────────
+    output.mkdir(parents=True, exist_ok=True)
+    out_file = output / "naturtyper.parquet"
 
-    pipeline = dlt.pipeline(
-        pipeline_name="naturtyper",
-        destination=dlt.destinations.filesystem(
-            bucket_url=bucket_url,
-            kwargs={"auto_mkdir": True},
-        ),
-        dataset_name="naturtyper",
-    )
+    typer.echo(f"Fetching in batches of {batch_size} …")
 
-    source = build_pipeline_source(ids, batch_size)
-    load_info = pipeline.run(source, loader_file_format="parquet")
+    with tempfile.TemporaryDirectory() as tmp:
+        pipeline = dlt.pipeline(
+            pipeline_name="naturtyper",
+            destination=dlt.destinations.filesystem(
+                bucket_url=tmp,
+                kwargs={"auto_mkdir": True},
+            ),
+            dataset_name="naturtyper",
+        )
+
+        source = build_pipeline_source(ids, batch_size)
+        pipeline.run(source, loader_file_format="parquet")
+
+        # Collect all parquet files written for the naturtyper table
+        parquet_files = sorted(
+            pathlib.Path(tmp).glob("naturtyper/naturtyper/*.parquet")
+        )
+        if not parquet_files:
+            typer.echo("No data returned by the API.", err=True)
+            raise typer.Exit(1)
+
+        tables = [pyarrow.parquet.read_table(f) for f in parquet_files]
+
+    # Merge, strip dlt metadata columns, write single file
+    merged = pyarrow.concat_tables(tables)
+    dlt_cols = {c for c in merged.schema.names if c.startswith("_dlt_")}
+    if dlt_cols:
+        merged = merged.select([c for c in merged.schema.names if c not in dlt_cols])
+
+    pyarrow.parquet.write_table(merged, out_file)
 
     # ── 3. Report ────────────────────────────────────────────────────────────
-    typer.echo(load_info)
+    typer.echo(
+        f"Wrote {merged.num_rows} rows × {merged.num_columns} columns" f" → {out_file}"
+    )
 
 
 def start() -> None:
